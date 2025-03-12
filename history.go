@@ -1,10 +1,15 @@
 package prompt
 
+import (
+	istrings "github.com/khulnasoft/go-prompt/strings"
+)
+
 // History stores the texts that are entered.
 type History struct {
-	histories []string
-	tmp       []string
-	selected  int
+	histories    []string
+	tmp          []string
+	selected     int
+	isNavigating bool
 }
 
 // Add to add text in history.
@@ -16,39 +21,43 @@ func (h *History) Add(input string) {
 // Clear to clear the history.
 func (h *History) Clear() {
 	h.tmp = make([]string, len(h.histories))
-	for i := range h.histories {
-		h.tmp[i] = h.histories[i]
-	}
+	copy(h.tmp, h.histories)
 	h.tmp = append(h.tmp, "")
 	h.selected = len(h.tmp) - 1
+	h.isNavigating = false
 }
 
 // Older saves a buffer of current line and get a buffer of previous line by up-arrow.
 // The changes of line buffers are stored until new history is created.
-func (h *History) Older(buf *Buffer) (new *Buffer, changed bool) {
+func (h *History) Older(buf *Buffer, columns istrings.Width, rows int) (new *Buffer, changed bool) {
 	if len(h.tmp) == 1 || h.selected == 0 {
 		return buf, false
 	}
 	h.tmp[h.selected] = buf.Text()
-
 	h.selected--
+	h.isNavigating = true
 	new = NewBuffer()
-	new.InsertText(h.tmp[h.selected], false, true)
+	new.InsertTextMoveCursor(h.tmp[h.selected], columns, rows, false)
 	return new, true
 }
 
 // Newer saves a buffer of current line and get a buffer of next line by up-arrow.
 // The changes of line buffers are stored until new history is created.
-func (h *History) Newer(buf *Buffer) (new *Buffer, changed bool) {
+func (h *History) Newer(buf *Buffer, columns istrings.Width, rows int) (new *Buffer, changed bool) {
 	if h.selected >= len(h.tmp)-1 {
+		h.isNavigating = false
 		return buf, false
 	}
 	h.tmp[h.selected] = buf.Text()
-
 	h.selected++
 	new = NewBuffer()
-	new.InsertText(h.tmp[h.selected], false, true)
+	new.InsertTextMoveCursor(h.tmp[h.selected], columns, rows, false)
 	return new, true
+}
+
+// ResetNavigation resets the navigation state
+func (h *History) ResetNavigation() {
+	h.isNavigating = false
 }
 
 // NewHistory returns new history object.

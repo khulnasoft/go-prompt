@@ -1,33 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
-	prompt "github.com/c-bata/go-prompt"
+	prompt "github.com/khulnasoft/go-prompt"
 )
 
 func executor(t string) {
-	if t == "bash" {
-		cmd := exec.Command("bash")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Run()
+	if t != "bash" {
+		fmt.Println("Sorry, I don't understand.")
+		return
 	}
-	return
-}
 
-func completer(t prompt.Document) []prompt.Suggest {
-	return []prompt.Suggest{
-		{Text: "bash"},
-	}
+	cmd := exec.Command("bash")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 }
 
 func main() {
 	p := prompt.New(
 		executor,
-		completer,
 	)
 	p.Run()
 }

@@ -4,6 +4,7 @@
 package prompt
 
 // Key is the type express the key inserted from user.
+//
 //go:generate stringer -type=Key
 type Key int
 
@@ -56,7 +57,9 @@ const (
 	Up
 	Down
 	Right
+	AltRight
 	Left
+	AltLeft
 
 	ShiftLeft
 	ShiftUp
@@ -73,6 +76,7 @@ const (
 	BackTab
 	Insert
 	Backspace
+	AltBackspace
 
 	// Aliases.
 	Tab
