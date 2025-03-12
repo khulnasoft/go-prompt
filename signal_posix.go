@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 package prompt
@@ -7,11 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/c-bata/go-prompt/internal/debug"
+	"github.com/khulnasoft/go-prompt/debug"
 )
 
 func (p *Prompt) handleSignals(exitCh chan int, winSizeCh chan *WinSize, stop chan struct{}) {
-	in := p.in
+	in := p.reader
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(
 		sigCh,
